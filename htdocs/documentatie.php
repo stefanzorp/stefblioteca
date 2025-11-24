@@ -57,14 +57,14 @@
 <body>
 
 <header>
-    <h1>Documentație Proiect: Biblioteca Online</h1>
+    <h1>Documentație Proiect: Stefblioteca (biblioteca online)</h1>
 </header>
 
 <div class="container">
 
     <div class="section">
         <h2>1. Prezentarea aplicației</h2>
-        <p>Aplicația web "Biblioteca Online" permite gestionarea unei biblioteci prin intermediul internetului. Utilizatorii pot:</p>
+        <p>Aplicația web "Stefblioteca" permite gestionarea unei biblioteci prin intermediul internetului. Utilizatorii pot:</p>
         <ul>
             <li>Vizualiza lista de cărți disponibile</li>
             <li>Împrumuta sau rezerva cărți</li>
