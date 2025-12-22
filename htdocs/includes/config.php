@@ -1,5 +1,18 @@
 <?php
-$servername = "sql312.infinityfree.com"; // hostul real de MySQL
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+//bloc token
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+
+$servername = "sql312.infinityfree.com"; 
 $username = "if0_40376414";
 $password = "zarzavat10";
 $database = "if0_40376414_biblioteca";
