@@ -1,16 +1,17 @@
 <?php
 session_start();
 include "includes/config.php";
+include "includes/header.php";
 
 $eroare = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    //verific CSRF
+    // Verificare CSRF
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die("Eroare de securitate.");
     }
 
-    //recaptcha
+    // reCAPTCHA
     $secret_key = '6LcV3zMsAAAAAGLN0yaJE6YWO3Dk_V3zA8Gd29MF'; 
     $response = $_POST['g-recaptcha-response'] ?? '';
     
@@ -32,16 +33,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($rez->num_rows === 1) {
             $user = $rez->fetch_assoc();
             if (password_verify($parola, $user["parola"])) {
-                
                 if ($user["status"] === "inactiv") {
                     $eroare = "Contul tău a fost suspendat. Contactează administratorul.";
                 } else {
-
                     $_SESSION["user_id"] = "id_" . $user["id_utilizator"]; 
                     $_SESSION["user_name"] = $user["nume"];
                     $_SESSION["user_rol"] = $user["rol"]; 
 
-                    header("Location: index.php");
+                    echo "<script>window.location.href='index.php';</script>";
                     exit;
                 }
             } else {
@@ -53,146 +52,54 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="ro">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Stefblioteca</title>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f8;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh; 
-            padding: 20px;
-        }
 
-        .login-card {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-        }
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
-        h2 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
-        }
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow border-0">
+            <div class="card-body p-4 p-md-5">
+                <h2 class="text-center mb-4 text-dark">Autentificare</h2>
 
-        .error-msg {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 0.9em;
-            border: 1px solid #f5c6cb;
-        }
+                <?php if ($eroare != ""): ?>
+                    <div class="alert alert-danger text-center"><?php echo $eroare; ?></div>
+                <?php endif; ?>
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+                <?php if (isset($_GET['msg'])): ?>
+                    <div class="alert alert-success text-center"><?php echo htmlspecialchars($_GET['msg']); ?></div>
+                <?php endif; ?>
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #34495e;
-            font-weight: 500;
-        }
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?? ''; ?>">
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Email</label>
+                        <input type="email" name="email" class="form-control" required placeholder="exemplu@mail.com">
+                    </div>
 
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 1em;
-        }
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Parolă</label>
+                        <input type="password" name="parola" class="form-control" required placeholder="••••••••">
+                    </div>
 
-        input:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.2);
-        }
+                    <div class="d-flex justify-content-center mb-4">
+                        <div class="g-recaptcha" data-sitekey="6LcV3zMsAAAAAN3yCpnTPrSDwDU6oH-_jsNoFXd4"></div>
+                    </div>
 
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #2c3e50;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-            margin-top: 10px;
-        }
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold">Intră în cont</button>
+                    </div>
+                </form>
 
-        button:hover {
-            background-color: #34495e;
-        }
-
-        .footer-links {
-            text-align: center;
-            margin-top: 25px;
-            font-size: 0.9em;
-        }
-
-        .footer-links a {
-            color: #3498db;
-            text-decoration: none;
-        }
-
-        .g-recaptcha {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-    </style>
-</head>
-<body>
-
-<div class="login-card">
-    <h2>Autentificare</h2>
-
-    <?php if ($eroare != ""): ?>
-        <div class="error-msg"><?php echo $eroare; ?></div>
-    <?php endif; ?>
-
-    <form method="POST">
-        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-        
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" name="email" required placeholder="exemplu@mail.com">
+                <div class="mt-4 text-center">
+                    <p class="mb-1 text-muted">Nu ai cont? <a href="register.php" class="text-decoration-none fw-bold">Înregistrează-te acum</a></p>
+                    <a href="index.php" class="text-decoration-none text-secondary small">← Pagina principală</a>
+                </div>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label>Parolă</label>
-            <input type="password" name="parola" required placeholder="••••••••">
-        </div>
-
-        <div class="g-recaptcha" data-sitekey="6LcV3zMsAAAAAN3yCpnTPrSDwDU6oH-_jsNoFXd4"></div>
-
-        <button type="submit">Intră în cont</button>
-    </form>
-
-    <div class="footer-links">
-        <p>Nu ai cont? <a href="register.php">Înregistrează-te acum</a></p>
-        <p><a href="index.php">← Pagina principală</a></p>
     </div>
 </div>
 
-</body>
-</html>
+<?php 
+include "includes/footer.php"; 
+?>
